@@ -555,7 +555,7 @@ end;
 
 procedure TfrmPCOM.FormCreate(Sender: TObject);
 begin
-FirstTimeShow := true;
+  FirstTimeShow := true;
 end;
 
 procedure TfrmPCOM.FormResize(Sender: TObject);

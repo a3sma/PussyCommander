@@ -17,21 +17,21 @@
     <Transaction>1899.12.30 00:00:00.000.694,=C:\research\PussyCommander2\Unit1.pas</Transaction>
     <Transaction>1899.12.30 00:00:00.000.003,C:\research\PussyCommander2\Unit1.pas=C:\research\PussyCommander2\formClient.pas</Transaction>
     <Transaction>1899.12.30 00:00:00.000.523,=C:\research\PussyCommander2\Unit1.pas</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.292,C:\research\PCOM2_Native\formTT.pas=</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.890,C:\research\PussyCommander\ConnectionChecker.pas=</Transaction>
     <Transaction>1899.12.30 00:00:00.000.082,=C:\research\PussyCommander\Unit1.pas</Transaction>
     <Transaction>1899.12.30 00:00:00.000.066,C:\research\PussyCommander\PussyConnectionManager.pas=C:\research\PussyCommander\Unit1.pas</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.775,=C:\research\PussyCommander\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.568,=C:\research\PussyCommander\Unit1.pas</Transaction>
     <Transaction>1899.12.30 00:00:00.000.534,C:\research\PussyCommander\Unit1.pas=C:\research\PussyCommander\ConnectionChecker.pas</Transaction>
     <Transaction>1899.12.30 00:00:00.000.717,C:\research\PussyCommander2\form.pas=C:\research\PussyCommander2\Unit1.pas</Transaction>
     <Transaction>1899.12.30 00:00:00.000.007,C:\research\PussyCommander2\formSettings.pas=C:\research\PussyCommander2\form.pas</Transaction>
     <Transaction>1899.12.30 00:00:00.000.178,C:\research\default\Project1.dproj=C:\research\PussyCommander\PCOM.dproj</Transaction>
     <Transaction>1899.12.30 00:00:00.000.783,C:\research\PussyCommander\formContact.dfm=C:\research\PussyCommander\Unit1.dfm</Transaction>
     <Transaction>1899.12.30 00:00:00.000.116,=C:\research\default\Unit1.pas</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.890,C:\research\PussyCommander\ConnectionChecker.pas=</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.292,C:\research\PCOM2_Native\formTT.pas=</Transaction>
     <Transaction>1899.12.30 00:00:00.000.896,C:\research\PussyCommander\formTT.dfm=C:\research\PussyCommander\Unit1.dfm</Transaction>
     <Transaction>1899.12.30 00:00:00.000.441,C:\research\default\Unit1.pas=C:\research\default\PCOMMain.pas</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.568,=C:\research\PussyCommander\Unit1.pas</Transaction>
     <Transaction>1899.12.30 00:00:00.000.197,=C:\research\PussyCommander\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.775,=C:\research\PussyCommander\Unit1.pas</Transaction>
     <Transaction>1899.12.30 00:00:00.000.151,C:\research\default\PCOMMain.pas=C:\research\PussyCommander\PCOMMain.pas</Transaction>
     <Transaction>1899.12.30 00:00:00.000.007,C:\research\PussyCommander2\formSettings.dfm=C:\research\PussyCommander2\form.dfm</Transaction>
   </Transactions>

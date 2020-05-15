@@ -417,8 +417,8 @@ for i := 1 to length(str) do
 		if str[i] = 'i' then str[i] := 'ø';
 		if str[i] = 'o' then str[i] := 'ù';
 		if str[i] = 'p' then str[i] := 'ç';
-    if str[i] = '[' then str[i] := '[';
-    if str[i] = ']' then str[i] := ']';
+    if str[i] = '[' then str[i] := 'õ';
+    if str[i] = ']' then str[i] := 'ú';
 		if str[i] = 'a' then str[i] := 'ô';
 		if str[i] = 's' then str[i] := 'û';
 		if str[i] = 'd' then str[i] := 'â';

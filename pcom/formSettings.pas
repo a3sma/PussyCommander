@@ -80,33 +80,55 @@ uses pcomlib;
 procedure TfrmSettings.SaveDBSettings;
 var
   Connection : IZConnection;
-  stmtActive : IZStatement;
+  pstmt : IZPreparedStatement;
   strUseServerDB : string;
 begin
   if BtnLocalDbase.Down then strUseServerDB := '0' else strUseServerDB := '1';
 
   Connection := DriverManager.GetConnectionWithLogin(getSettingsDBString(),'SYSDBA','masterkey');
-  stmtActive := Connection.CreateStatement;
-  stmtActive.AddBatch('UPDATE DBSETTINGS SET AVALUE = '''+strUseServerDB+'''       WHERE KEY = ''serverdb''');
-  stmtActive.AddBatch('UPDATE DBSETTINGS SET AVALUE = '''+TxtDBIP.Text+'''       WHERE KEY = ''ip''');
-  stmtActive.AddBatch('UPDATE DBSETTINGS SET AVALUE = '''+TxtDBPort.Text+'''     WHERE KEY = ''port''');
-  stmtActive.AddBatch('UPDATE DBSETTINGS SET AVALUE = '''+TxtDBPath.Text+'''     WHERE KEY = ''path''');
-  stmtActive.AddBatch('UPDATE DBSETTINGS SET AVALUE = '''+TxtDBLogin.Text+'''    WHERE KEY = ''login''');
-  stmtActive.AddBatch('UPDATE DBSETTINGS SET AVALUE = '''+TxtDBPassword.Text+''' WHERE KEY = ''password''');
-  stmtActive.ExecuteBatch;
-  stmtActive.Close;
+
+  pstmt := Connection.PrepareStatement('UPDATE DBSETTINGS SET AVALUE = ? WHERE KEY = ''serverdb''');
+  pstmt.SetString(1, strUseServerDB);
+  pstmt.ExecuteUpdatePrepared;
+  pstmt.Close;
+
+  pstmt := Connection.PrepareStatement('UPDATE DBSETTINGS SET AVALUE = ? WHERE KEY = ''ip''');
+  pstmt.SetString(1, TxtDBIP.Text);
+  pstmt.ExecuteUpdatePrepared;
+  pstmt.Close;
+
+  pstmt := Connection.PrepareStatement('UPDATE DBSETTINGS SET AVALUE = ? WHERE KEY = ''port''');
+  pstmt.SetString(1, TxtDBPort.Text);
+  pstmt.ExecuteUpdatePrepared;
+  pstmt.Close;
+
+  pstmt := Connection.PrepareStatement('UPDATE DBSETTINGS SET AVALUE = ? WHERE KEY = ''path''');
+  pstmt.SetString(1, TxtDBPath.Text);
+  pstmt.ExecuteUpdatePrepared;
+  pstmt.Close;
+
+  pstmt := Connection.PrepareStatement('UPDATE DBSETTINGS SET AVALUE = ? WHERE KEY = ''login''');
+  pstmt.SetString(1, TxtDBLogin.Text);
+  pstmt.ExecuteUpdatePrepared;
+  pstmt.Close;
+
+  pstmt := Connection.PrepareStatement('UPDATE DBSETTINGS SET AVALUE = ? WHERE KEY = ''password''');
+  pstmt.SetString(1, TxtDBPassword.Text);
+  pstmt.ExecuteUpdatePrepared;
+  pstmt.Close;
+
   Connection.Close;
 end;
 
 
 procedure TfrmSettings.BtnLocalDbaseClick(Sender: TObject);
 begin
-CheckDBSettingsVisability();
+  CheckDBSettingsVisability();
 end;
 
 procedure TfrmSettings.BtnServerDbaseClick(Sender: TObject);
 begin
-CheckDBSettingsVisability();
+  CheckDBSettingsVisability();
 end;
 
 procedure TfrmSettings.btnTestSettingsClick(Sender: TObject);
@@ -134,7 +156,6 @@ except
   begin
    ErrorString := E.ClassName + ' ' + E.Message;
    testok := false;
-
   end;
 end;
 
@@ -194,22 +215,36 @@ end;
 procedure TfrmSettings.SaveExeSettings;
 var
   Connection : IZConnection;
-  stmtActive : IZStatement;
+  pstmt : IZPreparedStatement;
 begin
-
+  // Global vars set.
   AmmyAdminExe  := TxtAmmyAdminExe.Text;
   AnyDeskEXE    := TxtAnyDeskExe.Text;
   DameWareExe   := TxtDameWareExe.Text;
   TeamViewerExe := TxtTeamViewerExe.Text;
 
-  Connection := DriverManager.GetConnectionWithLogin(getSettingsDBString(),'SYSDBA','masterkey');
-  stmtActive := Connection.CreateStatement;
-  stmtActive.AddBatch('UPDATE EXESETTINGS SET EXEPATH = '''+TxtAmmyAdminExe.Text+'''  WHERE APPLICATION = ''ammyadmin''');
-  stmtActive.AddBatch('UPDATE EXESETTINGS SET EXEPATH = '''+TxtAnyDeskExe.Text+'''    WHERE APPLICATION = ''anydesk''');
-  stmtActive.AddBatch('UPDATE EXESETTINGS SET EXEPATH = '''+TxtDameWareExe.Text+'''   WHERE APPLICATION = ''dameware''');
-  stmtActive.AddBatch('UPDATE EXESETTINGS SET EXEPATH = '''+TxtTeamViewerExe.Text+''' WHERE APPLICATION = ''teamviewer''');
-  stmtActive.ExecuteBatch;
-  stmtActive.Close;
+  Connection := DriverManager.GetConnectionWithLogin(getSettingsDBString(), 'SYSDBA', 'masterkey');
+
+  pstmt := Connection.PrepareStatement('UPDATE EXESETTINGS SET EXEPATH = ? WHERE APPLICATION = ''ammyadmin''');
+  pstmt.SetString(1, AmmyAdminExe);
+  pstmt.ExecuteUpdatePrepared;
+  pstmt.Close;
+
+  pstmt := Connection.PrepareStatement('UPDATE EXESETTINGS SET EXEPATH = ? WHERE APPLICATION = ''anydesk''');
+  pstmt.SetString(1, AnyDeskEXE);
+  pstmt.ExecuteUpdatePrepared;
+  pstmt.Close;
+
+  pstmt := Connection.PrepareStatement('UPDATE EXESETTINGS SET EXEPATH = ? WHERE APPLICATION = ''dameware''');
+  pstmt.SetString(1, DameWareExe);
+  pstmt.ExecuteUpdatePrepared;
+  pstmt.Close;
+
+  pstmt := Connection.PrepareStatement('UPDATE EXESETTINGS SET EXEPATH = ? WHERE APPLICATION = ''teamviewer''');
+  pstmt.SetString(1, TeamViewerExe);
+  pstmt.ExecuteUpdatePrepared;
+  pstmt.Close;
+
   Connection.Close;
 end;
 

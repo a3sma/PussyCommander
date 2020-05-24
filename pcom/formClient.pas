@@ -4,7 +4,7 @@ interface
 
 uses Vcl.Grids, Vcl.WinXCtrls, Vcl.StdCtrls, Vcl.ComCtrls, Vcl.Buttons,
   Vcl.Controls, Vcl.Menus, System.Classes, Vcl.ExtCtrls, ZDBCIntFS,
-  Vcl.Forms, WinApi.Windows, System.SysUtils, WinApi.Messages;
+  Vcl.Forms, WinApi.Windows, System.SysUtils, WinApi.Messages, Dialogs;
 
 type
   TfrmClient = class(TForm)
@@ -695,13 +695,14 @@ end;
 
 procedure TfrmCLient.SaveClient();
 var
-  stmtActive : IZStatement;
-  strUpdate  : string;
+  pstmt      : IZPreparedStatement;
 begin
-  stmtActive := conmgr.getStatement;
-  strUpdate  := 'update clients set NAME = '''+txtClientName.Text+''', Comment = '''+mmComment.Text+''' where id = ' + cur_client_id;
-  stmtActive.ExecuteUpdate(strUpdate);
-  conmgr.freeStatement(stmtActive);
+  pstmt := conmgr.prepareStatement('update clients set NAME = ?, Comment = ? where id = ?');
+  pstmt.SetString(1, txtClientName.Text);
+  pstmt.SetString(2, mmComment.Text);
+  pstmt.SetString(3, cur_client_id);
+  pstmt.ExecuteUpdatePrepared;
+  conmgr.freePreparedStatement(pstmt);
 end;
 
 procedure TfrmClient.sbtnAddContactClick(Sender: TObject);

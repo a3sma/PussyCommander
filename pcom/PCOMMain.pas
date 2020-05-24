@@ -4,7 +4,7 @@ interface
 
 uses Vcl.Grids, Vcl.ComCtrls, Vcl.Buttons, Vcl.StdCtrls, Vcl.Controls,
   Vcl.WinXCtrls, Vcl.Dialogs, Vcl.Menus, Vcl.ExtCtrls, ZAbstractConnection,
-  ZConnection, System.Classes, Vcl.Forms, ZDbcIntFs, WinApi.Windows, System.SysUtils, WinApi.Messages;
+  ZConnection, System.Classes, Vcl.Forms, ZDbcIntFs, WinApi.Windows, System.SysUtils, WinApi.Messages, System.Win.Registry;
 
 type
   TfrmPCOM = class(TForm)
@@ -577,7 +577,7 @@ begin
 
     ForceDirectories(ExtractFilePath(Application.Exename)+'\AnyDeskScripts\');
     ForceDirectories(ExtractFilePath(Application.Exename)+'\RemoteApps\');
-  end;
+   end;
 
   ShowConnections();
   txtSearchConnection.SetFocus;
@@ -585,27 +585,27 @@ end;
 
 procedure TfrmPCOM.MenuItemAmmyAdminClick(Sender: TObject);
 begin
-handleMenuConnectionClick(TMenuItem(Sender).hint);
+  handleMenuConnectionClick(TMenuItem(Sender).hint);
 end;
 
 procedure TfrmPCOM.MenuItemAnyDeskClick(Sender: TObject);
 begin
-handleMenuConnectionClick(TMenuItem(Sender).hint);
+  handleMenuConnectionClick(TMenuItem(Sender).hint);
 end;
 
 procedure TfrmPCOM.MenuItemDameWareClick(Sender: TObject);
 begin
-handleMenuConnectionClick(TMenuItem(Sender).hint);
+  handleMenuConnectionClick(TMenuItem(Sender).hint);
 end;
 
 procedure TfrmPCOM.MenuItemRDPClick(Sender: TObject);
 begin
-handleMenuConnectionClick(TMenuItem(Sender).hint);
+  handleMenuConnectionClick(TMenuItem(Sender).hint);
 end;
 
 procedure TfrmPCOM.MenuItemTeamViewerClick(Sender: TObject);
 begin
-handleMenuConnectionClick(TMenuItem(Sender).hint);
+  handleMenuConnectionClick(TMenuItem(Sender).hint);
 end;
 
 procedure TfrmPCOM.ShowConnections();
@@ -750,96 +750,92 @@ var
   strQuar, strWhere : string;
   strShowDel : string;
 begin
+  search := StringReplace(search, #39, '', [rfReplaceAll]);
 
-if showDeleted then
-  strShowDel := ''
+  if showDeleted then
+    strShowDel := ''
+    else
+    strShowDel := 'clients.isdel = 0 and desktops.isdel = 0 and ';
+
+  stmtactive := conmgr.getStatement;
+  try
+                  //     1              2             3             4             5                   6               7              8             9
+  strQuar := 'select clients.id, clients.name, desktops.id, desktops.name, desktops.tel1, desktops.tel1dob, desktops.tel2, desktops.tel2dob, desktops.address '+' from desktops inner join clients on clients.id = desktops.CLIENT_ID where ' + strShowDel;
+
+  if length(search) = length(leaveditgits(search)) then
+    strWhere := '( desktops.tel1 CONTAINING '''+ formatPhoneString(search) + ''' or desktops.tel2 CONTAINING '''+ formatPhoneString(search) + ''' ) order by clients.name, desktops.address, desktops.tel1, desktops.tel2'
   else
-  strShowDel := 'clients.isdel = 0 and desktops.isdel = 0 and ';
+    strWhere := '( (LOWER(desktops.address) CONTAINING '''+ search + ''') or (LOWER(desktops.address) CONTAINING '''+ StringKeyMapENRU(search) + ''') or (LOWER(desktops.name) CONTAINING '''+search+''') or (LOWER(desktops.name) CONTAINING '''+StringKeyMapENRU(search)+''') or (LOWER(clients.name) CONTAINING '''+search+''') or (LOWER(clients.name) CONTAINING '''+StringKeyMapENRU(search)+''') ) order by clients.name, desktops.address, desktops.tel1, desktops.tel2';
 
+  strQuar := strQuar + strWhere;
 
-stmtactive := conmgr.getStatement;
-try
-                //     1              2             3             4             5                   6               7              8             9
-strQuar := 'select clients.id, clients.name, desktops.id, desktops.name, desktops.tel1, desktops.tel1dob, desktops.tel2, desktops.tel2dob, desktops.address '+' from desktops inner join clients on clients.id = desktops.CLIENT_ID where ' + strShowDel;
+  rsactive   := stmtactive.ExecuteQuery(strQuar);
 
-if length(search) = length(leaveditgits(search)) then
-  strWhere := '( desktops.tel1 CONTAINING '''+ formatPhoneString(search) + ''' or desktops.tel2 CONTAINING '''+ formatPhoneString(search) + ''' ) order by clients.name, desktops.address, desktops.tel1, desktops.tel2'
-else
-  strWhere := '( (LOWER(desktops.address) CONTAINING '''+ search + ''') or (LOWER(desktops.address) CONTAINING '''+ StringKeyMapENRU(search) + ''') or (LOWER(desktops.name) CONTAINING '''+search+''') or (LOWER(desktops.name) CONTAINING '''+StringKeyMapENRU(search)+''') or (LOWER(clients.name) CONTAINING '''+search+''') or (LOWER(clients.name) CONTAINING '''+StringKeyMapENRU(search)+''') ) order by clients.name, desktops.address, desktops.tel1, desktops.tel2';
-
-strQuar := strQuar + strWhere;
-
-rsactive   := stmtactive.ExecuteQuery(strQuar);
-
-Synchronize(Display);
-finally
-FreeStatement();
-end;
-
+  Synchronize(Display);
+  finally
+  FreeStatement();
+  end;
 end;
 
 procedure TbgShowClients.Execute;
 var
  strShowDel : string;
 begin
+  search := StringReplace(search, #39, '', [rfReplaceAll]);
 
-if showDeleted then
-  strShowDel := '1, 0' // show isdel = 1 or isdel = 0 -> all clients
-else
-  strShowDel := '0, 0'; // show isdel = 0 or isdel = 0 -> only isdel = 0 -> only active clients
+  if showDeleted then
+    strShowDel := '1, 0' // show isdel = 1 or isdel = 0 -> all clients
+  else
+    strShowDel := '0, 0'; // show isdel = 0 or isdel = 0 -> only isdel = 0 -> only active clients
 
-stmtactive := conmgr.getStatement;
-
-try
-  rsactive   := stmtactive.ExecuteQuery('select * from get_clients_info('''+search+''','''+StringKeyMapENRU(search)+''', '+strShowDel+') order by name');
-  Synchronize(Display);
-finally
-  FreeStatement();
-end;
-
+  stmtactive := conmgr.getStatement;
+  try
+    rsactive   := stmtactive.ExecuteQuery('select * from get_clients_info('''+search+''','''+StringKeyMapENRU(search)+''', '+strShowDel+') order by name');
+    Synchronize(Display);
+  finally
+    FreeStatement();
+  end;
 end;
 
 procedure TbgShowClients.FreeStatement;
 begin
-rsactive.Close;
-sleep(50);
-conmgr.freeStatement(stmtActive);
+  rsactive.Close;
+  sleep(50);
+  conmgr.freeStatement(stmtActive);
 end;
 
 procedure TbgShowConnections.FreeStatement;
 begin
-rsactive.Close;
-sleep(50);
-conmgr.freeStatement(stmtActive);
+  rsactive.Close;
+  sleep(50);
+  conmgr.freeStatement(stmtActive);
 end;
 
 procedure TbgShowContacts.Execute;
 var strQuar, strWhere : string;
     strShowDel : string;
 begin
+  search := StringReplace(search, #39, '', [rfReplaceAll]);
 
-if showdeleted then
-  strShowDel := ''
+  if showdeleted then
+    strShowDel := ''
+    else
+    strShowDel := 'clients.isdel = 0 and contacts.isdel = 0 and';
+
+  stmtactive := conmgr.getStatement;
+  try
+  strQuar := 'select contacts.id, contacts.gruppa, contacts.fio, contacts.tel1, contacts.tel2, contacts.email, clients.NAME, clients.id, contacts.tel1dob, contacts.tel2dob from contacts inner join clients on contacts.client_id = clients.id where ';
+  if Length(search) = Length(LeaveDitgits(search)) then // if only ditgits then searching in phones
+     strWhere := ' ( '+strShowDel+' ( ( contacts.tel1 CONTAINING '''+ formatPhoneString(search) + ''') or ( contacts.tel2 CONTAINING '''+ formatPhoneString(search) + ''' ) ) ) order by clients.name, gruppa, fio;'
   else
-  strShowDel := 'clients.isdel = 0 and contacts.isdel = 0 and';
+     strWhere := ' ( '+strShowDel+' ( ( (LOWER(gruppa) CONTAINING '''+ search + ''') or (LOWER(gruppa) CONTAINING '''+ StringKeyMapENRU(search) + ''') or (LOWER(fio) CONTAINING '''+search+''') or (LOWER(fio) CONTAINING '''+StringKeyMapENRU(search)+''') or ( lower(email) containing '''+search+''') or ( lower(email) containing '''+search+''') or ( lower(clients.name) containing '''+search+''') or ( lower(clients.name) containing '''+StringKeyMapENRU(search)+''') ) ) ) order by clients.name, gruppa, fio;';
 
-stmtactive := conmgr.getStatement;
-try
-
-strQuar := 'select contacts.id, contacts.gruppa, contacts.fio, contacts.tel1, contacts.tel2, contacts.email, clients.NAME, clients.id, contacts.tel1dob, contacts.tel2dob from contacts inner join clients on contacts.client_id = clients.id where ';
-
-if Length(search) = Length(LeaveDitgits(search)) then // if only ditgits then searching in phones
-   strWhere := ' ( '+strShowDel+' ( ( contacts.tel1 CONTAINING '''+ formatPhoneString(search) + ''') or ( contacts.tel2 CONTAINING '''+ formatPhoneString(search) + ''' ) ) ) order by clients.name, gruppa, fio;'
-else
-   strWhere := ' ( '+strShowDel+' ( ( (LOWER(gruppa) CONTAINING '''+ search + ''') or (LOWER(gruppa) CONTAINING '''+ StringKeyMapENRU(search) + ''') or (LOWER(fio) CONTAINING '''+search+''') or (LOWER(fio) CONTAINING '''+StringKeyMapENRU(search)+''') or ( lower(email) containing '''+search+''') or ( lower(email) containing '''+search+''') or ( lower(clients.name) containing '''+search+''') or ( lower(clients.name) containing '''+StringKeyMapENRU(search)+''') ) ) ) order by clients.name, gruppa, fio;';
-
-strQuar := strQuar + strWhere;
-
-rsactive   := stmtactive.ExecuteQuery(strQuar);
-Synchronize(Display);
-finally
-FreeStatement();
-end;
+  strQuar := strQuar + strWhere;
+  rsactive   := stmtactive.ExecuteQuery(strQuar);
+  Synchronize(Display);
+  finally
+  FreeStatement();
+  end;
 
 end;
 
@@ -848,68 +844,62 @@ var
   i,j : integer;
   sg  : TStringGrid;
 begin
-if showcontactscounter = fForm.showcontactscounter then begin
+  if showcontactscounter = fForm.showcontactscounter then begin
 
- sg := fForm.sgContacts;
-
- ///////////////////////////////////////////////////////
- if sg.ColCount < 6 then  // Init first time
-  begin
-    sg.RowCount := 2;
-    sg.ColCount := 8;
-    sg.ColWidths[0] := -1;
-    sg.ColWidths[1] := -1;
-
-    sg.Cells[0, 0] := 'ContactID';
-    sg.Cells[1, 0] := 'ClientID';
-    sg.Cells[2, 0] := 'Client';
-    sg.Cells[3, 0] := 'Group';
-    sg.Cells[4, 0] := 'Name';
-    sg.Cells[5, 0] := 'Phone 1';
-    sg.Cells[6, 0] := 'Phone 2';
-    sg.Cells[7, 0] := 'E-Mail';
-  end;
-//////////////////////////////////////////////////////////
-
-  i := 0;
-  while(rsactive.next()) do
+   sg := fForm.sgContacts;
+   ///////////////////////////////////////////////////////
+   if sg.ColCount < 6 then  // Init first time
     begin
-      inc(i, 1);
-      if i + 1 > sg.RowCount then sg.RowCount := i + 1;
+      sg.RowCount := 2;
+      sg.ColCount := 8;
+      sg.ColWidths[0] := -1;
+      sg.ColWidths[1] := -1;
 
-      ///////////////////////////////////////////////////
-      sg.Cells[0, i] := rsActive.GetString(1);
-      sg.Cells[1, i] := rsActive.GetString(8);
-      sg.Cells[2, i] := rsActive.GetString(7);
-      sg.Cells[3, i] := rsActive.GetString(2);
-      sg.Cells[4, i] := rsActive.GetString(3);
+      sg.Cells[0, 0] := 'ContactID';
+      sg.Cells[1, 0] := 'ClientID';
+      sg.Cells[2, 0] := 'Client';
+      sg.Cells[3, 0] := 'Group';
+      sg.Cells[4, 0] := 'Name';
+      sg.Cells[5, 0] := 'Phone 1';
+      sg.Cells[6, 0] := 'Phone 2';
+      sg.Cells[7, 0] := 'E-Mail';
+    end;
+  //////////////////////////////////////////////////////////
+    i := 0;
+    while(rsactive.next()) do
+      begin
+        inc(i, 1);
+        if i + 1 > sg.RowCount then sg.RowCount := i + 1;
 
-      if rsActive.GetString(9) = '' then
-        sg.Cells[5, i] := rsActive.GetString(4)
-      else
-        sg.Cells[5, i] := rsActive.GetString(4) + ' ext ' + rsActive.GetString(9);
+        ///////////////////////////////////////////////////
+        sg.Cells[0, i] := rsActive.GetString(1);
+        sg.Cells[1, i] := rsActive.GetString(8);
+        sg.Cells[2, i] := rsActive.GetString(7);
+        sg.Cells[3, i] := rsActive.GetString(2);
+        sg.Cells[4, i] := rsActive.GetString(3);
 
-      if rsActive.GetString(10) = '' then
-        sg.Cells[6, i] := rsActive.GetString(5)
-      else
-        sg.Cells[6, i] := rsActive.GetString(5) + ' ext ' + rsActive.GetString(10);
+        if rsActive.GetString(9) = '' then
+          sg.Cells[5, i] := rsActive.GetString(4)
+        else
+          sg.Cells[5, i] := rsActive.GetString(4) + ' ext ' + rsActive.GetString(9);
 
-      sg.Cells[7, i] := rsActive.GetString(6);
-      ////////////////////////////////////////////////////
+        if rsActive.GetString(10) = '' then
+          sg.Cells[6, i] := rsActive.GetString(5)
+        else
+          sg.Cells[6, i] := rsActive.GetString(5) + ' ext ' + rsActive.GetString(10);
 
-      end;
-
-      if sg.RowCount >= i + 2 then
-        begin
-          sg.RowCount := i + 2;
-          for j := 0 to sg.ColCount do sg.Cells[j, sg.RowCount - 1] := '';
-          if sg.RowCount >= 3 then sg.RowCount := sg.RowCount - 1;
-
+        sg.Cells[7, i] := rsActive.GetString(6);
+        ////////////////////////////////////////////////////
         end;
+        if sg.RowCount >= i + 2 then
+          begin
+            sg.RowCount := i + 2;
+            for j := 0 to sg.ColCount do sg.Cells[j, sg.RowCount - 1] := '';
+            if sg.RowCount >= 3 then sg.RowCount := sg.RowCount - 1;
 
-      sgApplyBestFit(sg);
-end;
-
+          end;
+        sgApplyBestFit(sg);
+  end;
 end;
 
 procedure TbgShowContacts.FreeStatement;

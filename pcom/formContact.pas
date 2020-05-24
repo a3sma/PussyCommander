@@ -178,13 +178,23 @@ end;
 
 procedure TfrmContact.SaveContact;
 var
-  stmtActive : IZStatement;
+  pstmt : IZPreparedStatement;
   strUpdate  : string;
 begin
-  stmtActive := conmgr.getStatement;
-  strUpdate  := 'update contacts set fio = '''+txtName.Text+''', gruppa = '''+cmbGroup.Text+''', tel1 = '''+txtPhone1.Text+''',tel2 = '''+txtPhone2.Text+''', email = '''+txtEmail.Text+''', comment = '''+mmComment.Text+''', tel1dob = '''+txtExt1.text+''', tel2dob = '''+txtExt2.text+''' where id = ' + contact_id;
-  stmtActive.ExecuteUpdate(strUpdate);
-  conmgr.freeStatement(stmtActive);
+  strUpdate  := 'update contacts set fio = ?, gruppa = ?, tel1 = ?,tel2 = ?, email = ?, comment = ?, tel1dob = ?, tel2dob = ? where id = ?';
+  pstmt := conmgr.prepareStatement(strUpdate);
+  pstmt.SetString(1, txtName.Text);
+  pstmt.SetString(2, cmbGroup.Text);
+  pstmt.SetString(3, txtPhone1.Text);
+  pstmt.SetString(4, txtPhone2.Text);
+  pstmt.SetString(5, txtEmail.Text);
+  pstmt.SetString(6, mmComment.Text);
+  pstmt.SetString(7, txtExt1.Text);
+  pstmt.SetString(8, txtExt2.Text);
+  pstmt.SetString(9, contact_id);
+
+  pstmt.ExecuteUpdatePrepared;
+  conmgr.freePreparedStatement(pstmt);
 end;
 
 procedure TfrmContact.sbtnRestoreClick(Sender: TObject);

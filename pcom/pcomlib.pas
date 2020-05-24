@@ -77,6 +77,8 @@ const
 
 implementation
 
+
+
 procedure sgApplyBestFit(sg : TStringGrid);
 var
   i, ColWidth, sgWidth, VisibleColumnCount, StartVisibleColumnNumber: integer;

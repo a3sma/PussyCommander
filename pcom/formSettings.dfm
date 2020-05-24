@@ -21,17 +21,11 @@ object frmSettings: TfrmSettings
     Top = 0
     Width = 489
     Height = 343
-    ActivePage = TabSheetExePath
+    ActivePage = TabSheetDbase
     Align = alClient
     TabOrder = 0
-    ExplicitLeft = 31
-    ExplicitTop = 46
-    ExplicitWidth = 665
-    ExplicitHeight = 403
     object TabSheetExePath: TTabSheet
       Caption = 'Application path'
-      ExplicitWidth = 281
-      ExplicitHeight = 165
       object sBtnSaveAppSettings: TSpeedButton
         Left = 384
         Top = 276
@@ -96,8 +90,6 @@ object frmSettings: TfrmSettings
         Align = alTop
         Caption = 'AmmyAdmin'
         TabOrder = 0
-        ExplicitTop = 0
-        ExplicitWidth = 759
         object SpeedButton4: TSpeedButton
           Left = 12
           Top = 19
@@ -206,8 +198,6 @@ object frmSettings: TfrmSettings
         Align = alTop
         Caption = 'AnyDesk'
         TabOrder = 1
-        ExplicitTop = 0
-        ExplicitWidth = 759
         object SpeedButton3: TSpeedButton
           Left = 12
           Top = 19
@@ -307,8 +297,6 @@ object frmSettings: TfrmSettings
         Align = alTop
         Caption = 'DameWare'
         TabOrder = 2
-        ExplicitTop = 0
-        ExplicitWidth = 759
         object SpeedButton2: TSpeedButton
           Left = 12
           Top = 19
@@ -417,7 +405,6 @@ object frmSettings: TfrmSettings
         Align = alTop
         Caption = 'TeamViewer'
         TabOrder = 3
-        ExplicitWidth = 759
         object SpeedButton1: TSpeedButton
           Left = 12
           Top = 19
@@ -522,8 +509,6 @@ object frmSettings: TfrmSettings
     object TabSheetDbase: TTabSheet
       Caption = 'DB Settings'
       ImageIndex = 1
-      ExplicitWidth = 281
-      ExplicitHeight = 165
       object sbtnSaveDBSettings: TSpeedButton
         Left = 384
         Top = 276

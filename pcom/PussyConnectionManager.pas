@@ -10,7 +10,11 @@ type
      procedure OpenConnections();
      procedure Execute; override;
      function getStatement() : IZStatement;
+     function getConnection() : IZConnection;
+     function prepareStatement(sql : string) : IZPreparedStatement;
      procedure freeStatement(stmt: IZStatement);
+     procedure freePreparedStatement(pstmt : IZPreparedStatement);
+     procedure freeConnection(con : IZConnection);
      procedure test();
      procedure FixConnections();
   private
@@ -102,30 +106,147 @@ var
   found : boolean;
   con   : IZConnection;
 begin
-found := false;
-System.TMonitor.Enter(Self);
-try
-  for I := 0 to ConnectionCount - 1 do
+  found := false;
+  System.TMonitor.Enter(Self);
+  try
+    for I := 0 to ConnectionCount - 1 do
+      begin
+        if Statements[i] = stmt then
+          begin
+            found := true;
+            ConnectionsStatus[i] := 0;
+            break;
+          end;
+      end;
+
+      if not found then
+      begin
+        con := stmt.GetConnection;
+        stmt.Close;
+        sleep(50);
+        con.Close;
+      end;
+  finally
+   System.TMonitor.Exit(Self);
+  end
+end;
+
+procedure TPussyConnectionManager.freePreparedStatement(pstmt: IZPreparedStatement);
+var
+  i: integer;
+  found : boolean;
+  con   : IZConnection;
+begin
+  found := false;
+  System.TMonitor.Enter(Self);
+  try
+    for I := 0 to ConnectionCount - 1 do
+      begin
+        if Connections[i] = pstmt.GetConnection then
+          begin
+            found := true;
+            pstmt.Close;
+            ConnectionsStatus[i] := 0;
+            break;
+          end;
+      end;
+
+      if not found then
+      begin
+        con := pstmt.GetConnection;
+        pstmt.Close;
+        sleep(50);
+        con.Close;
+      end;
+  finally
+   System.TMonitor.Exit(Self);
+  end
+end;
+
+procedure TPussyConnectionManager.freeConnection(con: IZConnection);
+var
+  i: integer;
+  found : boolean;
+begin
+  found := false;
+  System.TMonitor.Enter(Self);
+  try
+    for I := 0 to ConnectionCount - 1 do
+      begin
+        if Connections[i] = con then
+          begin
+            found := true;
+            ConnectionsStatus[i] := 0;
+            break;
+          end;
+      end;
+
+      if not found then
+      begin
+        con.Close;
+      end;
+  finally
+   System.TMonitor.Exit(Self);
+  end
+end;
+
+function TPussyConnectionManager.getConnection;
+var i : integer;
+    Connection : IZConnection;
+    Statement  : IZStatement;
+begin
+  System.TMonitor.Enter(Self);
+  try
+    result := nil;
+    for I := 0 to ConnectionCount-1 do
     begin
-      if Statements[i] = stmt then
+      if ConnectionsStatus[i] = 0 then
         begin
-          found := true;
-          ConnectionsStatus[i] := 0;
-          break;
+        ConnectionsStatus[i] := 1;
+        result := Connections[i];
+        break;
         end;
-    end;
 
-    if not found then
+    end;
+    if result = nil then
     begin
-      con := stmt.GetConnection;
-      stmt.Close;
-      sleep(50);
-      con.Close;
+        Connection := DriverManager.GetConnectionWithLogin(savedDBString, savedDBUser, savedDBPass);
+        Connection.SetAutoCommit(True);
+        Connection.SetTransactionIsolation(tiReadCommitted);
+        result     := Connection;
     end;
-finally
- System.TMonitor.Exit(Self);
-end
+  finally
+   System.TMonitor.Exit(Self);
+  end;
+end;
 
+function TPussyConnectionManager.prepareStatement(sql : string) : IZPreparedStatement;
+var i : integer;
+    Connection : IZConnection;
+begin
+  System.TMonitor.Enter(Self);
+  try
+    result := nil;
+    for I := 0 to ConnectionCount-1 do
+    begin
+      if ConnectionsStatus[i] = 0 then
+        begin
+        ConnectionsStatus[i] := 1;
+        result := Connections[i].PrepareStatement(sql);
+        break;
+        end;
+
+    end;
+    if result = nil then
+    begin
+        Connection := DriverManager.GetConnectionWithLogin(savedDBString, savedDBUser, savedDBPass);
+        Connection.SetAutoCommit(True);
+        Connection.SetTransactionIsolation(tiReadCommitted);
+        result := Connection.PrepareStatement(sql);
+    end;
+  finally
+   System.TMonitor.Exit(Self);
+  end;
 end;
 
 function TPussyConnectionManager.getStatement;
@@ -133,36 +254,30 @@ var i : integer;
     Connection : IZConnection;
     Statement  : IZStatement;
 begin
+  System.TMonitor.Enter(Self);
+  try
+    result := nil;
+    for I := 0 to ConnectionCount-1 do
+    begin
+      if ConnectionsStatus[i] = 0 then
+        begin
+        ConnectionsStatus[i] := 1;
+        result := Statements[i];
+        break;
+        end;
 
-System.TMonitor.Enter(Self);
-try
-
-  result := nil;
-
-  for I := 0 to ConnectionCount-1 do
-  begin
-    if ConnectionsStatus[i] = 0 then
-      begin
-      ConnectionsStatus[i] := 1;
-      result := Statements[i];
-      break;
-      end;
-
+    end;
+    if result = nil then
+    begin
+        Connection := DriverManager.GetConnectionWithLogin(savedDBString, savedDBUser, savedDBPass);
+        Connection.SetAutoCommit(True);
+        Connection.SetTransactionIsolation(tiReadCommitted);
+        Statement  := Connection.CreateStatement;
+        result     := statement;
+    end;
+  finally
+   System.TMonitor.Exit(Self);
   end;
-
-  if result = nil then
-  begin
-      Connection := DriverManager.GetConnectionWithLogin(savedDBString, savedDBUser, savedDBPass);
-      Connection.SetAutoCommit(True);
-      Connection.SetTransactionIsolation(tiReadCommitted);
-      Statement  := Connection.CreateStatement;
-      result     := statement;
-  end;
-
-finally
- System.TMonitor.Exit(Self);
-end;
-
 end;
 
 procedure TPussyConnectionManager.Init(ConnCount: Byte; DBString, DBUser, DBPass : string; FixIntervalSeconds : integer = 60);

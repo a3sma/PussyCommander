@@ -327,25 +327,51 @@ end;
 
 procedure TfrmDesktop.Save;
 var
-  stmtActive : IZStatement;
-  strUpdate  : string;
+  pstmt : IZPreparedStatement;
+  strUpdate : string;
   strUseNTLogon : string;
 begin
   if chDameWareUseNtLogon.Checked then strUseNTLogon := '1' else strUseNTlogon := '0';
+                                        //    1         2            3         4         5                6                      7            8
+  strUpdate := 'update desktops set COMMENT = ?, NAME = ?, ADDRESS = ?, TEL1 = ?, TEL2 = ?, AMMYADMINID = ?, AMMYADMINPASSWORD = ? where id = ? ';
+  pstmt := conmgr.prepareStatement(strUpdate);
+  pstmt.SetString(1, mmComment.Text);
+  pstmt.SetString(2, TxtName.Text);
+  pstmt.SetString(3, TxtAddress.Text);
+  pstmt.SetString(4, TxtTel1.Text);
+  pstmt.SetString(5, TxtTel2.Text);
+  pstmt.SetString(6, TxtAmmyAdminId.Text);
+  pstmt.SetString(7, TxtAmmyAdminPassword.Text);
+  pstmt.SetString(8, cur_desktop_id);
+  pstmt.ExecuteUpdatePrepared;
+  conmgr.freePreparedStatement(pstmt);
+                            //                  1                    2               3                      4                   5                 6                     7            8
+  strUpdate := 'update desktops set ANYDESKID = ?, ANYDESKPASSWORD = ?, DAMEWAREIP = ?,DAMEWAREUSENTLOGON = ?, DAMEWAREDOMAIN = ?, DAMEWAREUSER = ?, DAMEWAREPASSWORD = ? where id = ? ';
+  pstmt := conmgr.prepareStatement(strUpdate);
+  pstmt.SetString(1, TxtAnyDeskId.Text);
+  pstmt.SetString(2, TxtAnyDeskPassword.Text);
+  pstmt.SetString(3, txtDameWareIp.Text);
+  pstmt.SetString(4, strUseNTLogon);
+  pstmt.SetString(5, txtDAMEWAREDOMAIN.Text);
+  pstmt.SetString(6, txtDAMEWAREUSER.Text);
+  pstmt.SetString(7, txtDAMEWAREPASSWORD.Text);
+  pstmt.SetString(8, cur_desktop_id);
+  pstmt.ExecuteUpdatePrepared;
+  conmgr.freePreparedStatement(pstmt);
+                            //              1            2                3                 4                       5            6            7            8
+  strUpdate := 'update desktops set RDPIP = ?, RDPUSER = ?, RDPPASSWORD = ?, TEAMVIEWERID = ?, TEAMVIEWERPASSWORD = ?, tel1dob = ?, tel2dob = ? where id = ?';
+  pstmt := conmgr.prepareStatement(strUpdate);
+  pstmt.SetString(1, txtRDPIP.Text);
+  pstmt.SetString(2, txtRDPUSER.Text);
+  pstmt.SetString(3, txtRDPPASSWORD.Text);
+  pstmt.SetString(4, txtTEAMVIEWERID.Text);
+  pstmt.SetString(5, txtTEAMVIEWERPASSWORD.Text);
+  pstmt.SetString(6, TxtTel1Dob.Text);
+  pstmt.SetString(7, TxtTel2Dob.Text);
+  pstmt.SetString(8, cur_desktop_id);
 
-  stmtActive := conmgr.getStatement;
-
-  strUpdate  := 'update desktops set COMMENT = '''+mmComment.Text+''', NAME = '''+TxtName.Text+''', ADDRESS = '''+TxtAddress.Text+''',TEL1 = '''+TxtTel1.Text+''', TEL2 = '''+TxtTel2.Text+''', AMMYADMINID = '''+TxtAmmyAdminId.Text+''', AMMYADMINPASSWORD = '''+TxtAmmyAdminPassword.Text+''' where id = ' + cur_desktop_id;
-  stmtActive.AddBatch(strUpdate);
-
-  strUpdate  := 'update desktops set ANYDESKID = '''+TxtAnyDeskId.Text+''', ANYDESKPASSWORD = '''+TxtAnyDeskPassword.Text+''', DAMEWAREIP = '''+txtDameWareIp.Text+''',DAMEWAREUSENTLOGON = '+strUseNTLogon+', DAMEWAREDOMAIN = '''+txtDAMEWAREDOMAIN.Text+''', DAMEWAREUSER = '''+txtDAMEWAREUSER.Text+''', DAMEWAREPASSWORD = '''+txtDAMEWAREPASSWORD.Text+''' where id = ' + cur_desktop_id;
-  stmtActive.AddBatch(strUpdate);
-
-  strUpdate  := 'update desktops set RDPIP = '''+txtRDPIP.Text+''', RDPUSER = '''+txtRDPUSER.Text+''', RDPPASSWORD = '''+txtRDPPASSWORD.Text+''', TEAMVIEWERID = '''+txtTEAMVIEWERID.Text+''', TEAMVIEWERPASSWORD = '''+txtTEAMVIEWERPASSWORD.Text+''', tel1dob = '''+TxtTel1Dob.Text+''', tel2dob = '''+TxtTel2Dob.Text+''' where id = ' + cur_desktop_id;
-  stmtActive.AddBatch(strUpdate);
-
-  stmtActive.ExecuteBatch();
-  conmgr.freeStatement(stmtActive);
+  pstmt.ExecuteUpdatePrepared;
+  conmgr.freePreparedStatement(pstmt);
 end;
 
 procedure TfrmDesktop.sbtnDameWareConnectClick(Sender: TObject);

@@ -385,14 +385,14 @@ end;
 
 procedure TfrmPcom.AddClient(client_name : string);
 var
-    stmtActive : IZStatement;
+    pstmt      : IZPreparedStatement;
     rsActive   : IZResultSet;
     new_id     : string;
 begin
-  stmtActive := conmgr.getStatement;
-
+  pstmt := conmgr.prepareStatement('INSERT INTO CLIENTS (NAME) VALUES (?) returning ID;');
   try
-  rsactive   := stmtactive.ExecuteQuery('INSERT INTO CLIENTS (NAME) VALUES ('''+client_name+''') returning ID;');
+  pstmt.SetString(1, client_name);
+  rsactive := pstmt.ExecuteQueryPrepared;
   if rsActive.Next then
   begin
      new_id := rsActive.GetString(1);
@@ -400,7 +400,7 @@ begin
   rsActive.Close;
   sleep(25);
   finally
-  conmgr.freeStatement(stmtActive);
+  conmgr.freePreparedStatement(pstmt);
   end;
 
   if new_id <> '' then frmClient.OpenClient(new_id);
@@ -409,14 +409,16 @@ end;
 
 procedure TfrmPCOM.AddDesktop(DesktopName, client_id : string);
 var
-    stmtActive : IZStatement;
+    pstmt      : IZPreparedStatement;
     rsActive   : IZResultSet;
     new_id     : string;
 begin
-  stmtActive := conmgr.getStatement;
+  pstmt := conmgr.prepareStatement('INSERT INTO DESKTOPS (NAME, CLIENT_ID) VALUES (?, ?) returning ID;');
 
   try
-  rsactive   := stmtactive.ExecuteQuery('INSERT INTO DESKTOPS (NAME, CLIENT_ID) VALUES ('''+DesktopName+''', '''+client_id+''') returning ID;');
+  pstmt.SetString(1, DesktopName);
+  pstmt.SetString(2, client_id);
+  rsactive   := pstmt.ExecuteQueryPrepared;
   if rsActive.Next then
   begin
      new_id := rsActive.GetString(1);
@@ -424,7 +426,7 @@ begin
   rsActive.Close;
   sleep(25);
   finally
-  conmgr.freeStatement(stmtActive);
+  conmgr.freePreparedStatement(pstmt);
   end;
 
   if new_id <> '' then frmDesktop.OpenDesktop(new_id);
@@ -433,19 +435,21 @@ end;
 
 procedure TfrmPCOM.Button1Click(Sender: TObject);
 begin
-conmgr.test;
+  conmgr.test;
 end;
 
 procedure TfrmPCOM.AddContact(FIO, client_id : string);
 var
-    stmtActive : IZStatement;
+    pstmt      : IZPreparedStatement;
     rsActive   : IZResultSet;
     new_id     : string;
 begin
-  stmtActive := conmgr.getStatement;
+  pstmt := conmgr.prepareStatement('INSERT INTO CONTACTS (FIO, CLIENT_ID) VALUES (?, ?) returning ID;');
 
   try
-  rsactive   := stmtactive.ExecuteQuery('INSERT INTO CONTACTS (FIO, CLIENT_ID) VALUES ('''+FIO+''','+client_id+') returning ID;');
+  pstmt.SetString(1, FIO);
+  pstmt.SetString(2, client_id);
+  rsactive   := pstmt.ExecuteQueryPrepared;
   if rsActive.Next then
   begin
      new_id := rsActive.GetString(1);
@@ -454,7 +458,7 @@ begin
   sleep(25);
   finally
 
-  conmgr.freeStatement(stmtActive);
+  conmgr.freePreparedStatement(pstmt);
   end;
 
   if new_id <> '' then frmContact.Open(new_id);
@@ -676,7 +680,7 @@ begin
 
      if strNewName <> '' then
         begin
-        AddContact(strNewName, client_name);
+        AddContact(strNewName, client_id);
         end;
    end;
 end;

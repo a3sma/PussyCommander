@@ -23,7 +23,7 @@ object frmPCOM: TfrmPCOM
     Top = 0
     Width = 896
     Height = 492
-    ActivePage = tabConnections
+    ActivePage = tabContacts
     Align = alClient
     TabOrder = 0
     OnChange = pcMainChange
